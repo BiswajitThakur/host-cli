@@ -43,7 +43,7 @@ func main() {
 		addAllowList()
 	} else if addBlockListReg.MatchString(args) {
 		addBlockList()
-	} else if unBlockReg.MatchString(args) {
+	} else if updateReg.MatchString(args) {
 		block()
 	} else {
 		fmt.Printf("Invalid Option : %s\n", args)
@@ -75,7 +75,7 @@ func help() string {
     --block host_name1 host_name2 ...               Add host_name1 host_name2 ... to block list.
     --unblock                                       Unblock ads and all host blocked by you
     --unblock host_name1 host_name2 ...             Unblock host_name1 host_name2  ...
-	--update                                        Update Ads Hostname List
+    --update                                        Update Ads Hostname List
 `
 }
 
