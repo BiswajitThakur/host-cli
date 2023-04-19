@@ -1,50 +1,64 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "strings"
-    "net/http"
-    "io/ioutil"
-    "regexp"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"regexp"
+	"strings"
 )
 
-//var reg = 
-
 func GetContent(url string) (string, error) {
-    fmt.Printf("Downloading... --> %s\n", url)
-    response, err := http.Get(url)
-    if err != nil {
-        return "", err
-    }
-    defer response.Body.Close()
+	fmt.Printf("Downloading... --> %s\n", url)
+	response, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
 
-    body, err := ioutil.ReadAll(response.Body)
-    if err != nil {
-        return "", err
-    }
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", err
+	}
 
-    return string(body), nil
+	return string(body), nil
+}
+
+func IsExist(path string) bool {
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return false
+	}
+	return true
+}
+func IsExistOneOfMany(paths ...string) bool {
+	for _, i := range paths {
+		if IsExist(i) {
+			return true
+		}
+	}
+	return false
 }
 
 func ReadFile(filename string) (string, error) {
-    content, err := ioutil.ReadFile(filename)
-    if err != nil {
-        return "", err
-    }
-    return string(content), nil
+	content, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }
 
 func WriteFile(path string, d string) error {
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
-	    return err
+		return err
 	}
 	defer file.Close()
 	data := []byte(d)
 	_, err = file.Write(data)
 	if err != nil {
-	    return err
+		return err
 	}
 	return nil
 }
@@ -66,7 +80,7 @@ func FindStr(s []string, v string) int {
 
 // This function filter hostname from string.
 func FilterHosts(s string) []string {
-    var v []string = []string{}
+	var v []string = []string{}
 	r := regexp.MustCompile(`^\s*\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\s+([A-Za-z0-9-\.]+)\s*`)
 	for _, i := range strings.Split(s, "\n") {
 		if !IsComment(i) && r.MatchString(i) {
@@ -137,10 +151,13 @@ func Block(s *Set) string {
 	if len(k) == 0 {
 		return "# BT-start\n# BT-end\n"
 	}
-	m := ""
+	l := make([]string, len(k)+2)
+	l[0] = "# BT-start"
+	var j int = 1
 	for _, i := range k {
-		m = fmt.Sprintf("%s0.0.0.0    %s\n", m, i)
+		l[j] = fmt.Sprintf("0.0.0.0 %s", i)
+		j++
 	}
-	return fmt.Sprintf("# BT-start\n%s# BT-end\n", m)
+	l[j] = "# BT-end\n"
+	return strings.Join(l, "\n")
 }
-
