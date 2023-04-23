@@ -4,86 +4,56 @@ Host-CLI is a Ads blocker and websites blocker CLI based tool written in golang.
 
 ## Installation ( Debian/Ubuntu )
 
-* Clone this repository -
-
+* Download the Debian package & Execute the following command
 ```bash
-git clone https://github.com/BiswajitThakur/host-cli
-
+sudo dpkg -i host-cli_*.deb
+sudo host-cli --version
 ```
-* Now go to cloned directory -
-
+## Installation ( Windows )
+* Download the exe file.
+* Open terminal as administrator.
+* Go to the location where you downloaded the exe file.
+* Execute the following command.
 ```bash
-cd host-cli/
+host-cli --version
 ```
-
-* Run setup.sh
-```bash
-sudo bash setup.sh
-```
-
-* Now you will see `host-cli` executable file. Execute this file using `sudo` command -
-```bash
-sudo ./host-cli --version
-```
-
-## Installation ( Termux - For Rooted Devices)
-* Install dependencies
-```bash
-pkg update && pkg install tsu golang
-```
-* Clone this repository -
-
-```bash
-git clone https://github.com/BiswajitThakur/host-cli
-
-```
-
-* Execute these following commands -
-
-```bash
-cd host-cli/
-```
-```bash
-bash setup.sh
-```
-
-* Now you will see `host-cli` executable file. Execute this file using `sudo` command -
-```bash
-sudo ./host-cli --version
-```
+* If the above command print version, please read Documentation
 
 ## Documentation
 
 ### - Block Ads -
 ```bash
-sudo ./host-cli --block
+sudo host-cli --block
 ```
 
 ### - Unblock Ads -
 ```bash
-sudo ./host-cli --unblock
+sudo host-cli --unblock
 ```
 
 ### - Block Single Website -
 ```bash
-sudo ./host-cli --block <host_name>
+sudo host-cli --block <host_name>
 ```
-For example : `sudo ./host-cli --block google.com`
+For example : `sudo host-cli --block google.com`
 
 ### - Block Multiple Website -
 ```bash
-sudo ./host-cli --block <host_name1> <host_name2> <host_name3> ...
+sudo host-cli --block <host_name1> <host_name2> <host_name3> ...
 ```
-For example : `sudo ./host-cli --block google.com facebook.com`
+For example : `sudo host-cli --block google.com facebook.com`
 
 ### - Unblock Single Website -
 ```bash
-sudo ./host-cli --unblock <host_name>
+sudo host-cli --unblock <host_name>
 ```
-For Example : `sudo ./host-cli --unblock google.com`
+For Example : `sudo host-cli --unblock google.com`
 
 ### - Unblock Multiple Website -
 ```bash
-sudo ./host-cli --unblock <host_name1> <host_name2> <host_name3> ...
+sudo host-cli --unblock <host_name1> <host_name2> <host_name3> ...
 ```
-For Example : `sudo ./host-cli --unblock google.com facebook.com`
+For Example : `sudo host-cli --unblock google.com facebook.com`
+
+### - Update hosts sources -
+`sudo host-cli --updateSourceList` or `sudo host-cli --upsl`
