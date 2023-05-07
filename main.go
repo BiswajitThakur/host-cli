@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"host-cli/options"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -10,11 +11,13 @@ import (
 	"strings"
 )
 
-var Version string = "1.0.0"
+var Version string = "1.0.5"
 var PkgName string = "host-cli"
 var homeDir, _ = os.UserHomeDir()
 
 var hostPath string = HostPath()
+
+// var hostPath string = "hosts"
 
 var blockPath string = getPathIfExist("block.txt", []string{
 	fmt.Sprintf("/usr/share/%s/block.txt", PkgName),
@@ -36,36 +39,55 @@ var sourcePath string = getSourcePathIfExist("sources.txt", []string{
 var blockList *Set = NewSet()
 var args string = strings.Join(os.Args[1:], " ")
 
-var versionReg1 = regexp.MustCompile(`(?i)^\s*\-\-?v\s*$`)
-var versionReg2 = regexp.MustCompile(`(?i)^\s*\-?\-?version\s*$`)
 var validHost = regexp.MustCompile(`(?i)^[^\.][a-z\d\-]+\.[a-z\d\-\.]+[^\.]$`)
-var help1Regx = regexp.MustCompile(`(?i)^\s*\-?\-?help\s*$`)
-var help2Regx = regexp.MustCompile(`^\s*$`)
-var blockReg = regexp.MustCompile(`(?i)^\s*\-?\-?block\s*$`)
-var unBlockReg = regexp.MustCompile(`(?i)^\s*\-?\-?unblock\s*$`)
-var addAllowListReg = regexp.MustCompile(`(?i)^\s*\-?\-?unblock\s*([^\s].+)$`)
-var addBlockListReg = regexp.MustCompile(`(?i)^\s*\-?\-?block\s*([^\s].+)$`)
-var upslReg1 = regexp.MustCompile(`(?i)^\s*\-?\-?updatesourcelist\s*$`)
-var upslReg2 = regexp.MustCompile(`(?i)^\s*\-?\-?upsl\s*$`)
+
+var Z = options.NewOptions(os.Args)
 
 func main() {
-	if help1Regx.MatchString(args) || help2Regx.MatchString(args) {
-		fmt.Println(help())
-	} else if versionReg1.MatchString(args) || versionReg2.MatchString(args) {
-		fmt.Println(Version)
-	} else if blockReg.MatchString(args) {
-		os.Exit(block())
-	} else if unBlockReg.MatchString(args) {
-		os.Exit(unblock())
-	} else if addAllowListReg.MatchString(args) {
-		os.Exit(addAllowList())
-	} else if addBlockListReg.MatchString(args) {
-		os.Exit(addBlockList())
-	} else if upslReg1.MatchString(args) || upslReg2.MatchString(args) {
-		os.Exit(block())
-	} else {
-		fmt.Printf("Invalid Option : %s\n", args)
-	}
+
+	Z.Add(options.Option{
+		SortName: "-h",
+		LongName: "--help",
+		Callback: help,
+	})
+
+	Z.Add(options.Option{
+		SortName: "-v",
+		LongName: "--version",
+		Callback: func() { fmt.Println(Version) },
+	})
+
+	Z.Add(options.Option{
+		SortName: "-b",
+		LongName: "--block",
+		Callback: func() {
+			if len(Z.Args()) == 0 {
+				block()
+				return
+			}
+			addBlockList()
+		},
+	})
+
+	Z.Add(options.Option{
+		SortName: "-upsl",
+		LongName: "--updatesourcelist",
+		Callback: block,
+	})
+
+	Z.Add(options.Option{
+		SortName: "-u",
+		LongName: "--unblock",
+		Callback: func() {
+			if len(Z.Args()) == 0 {
+				unblock()
+				return
+			}
+			addAllowList()
+		},
+	})
+
+	Z.Start()
 }
 
 func HostPath() string {
@@ -85,7 +107,7 @@ func HostPath() string {
 	}
 }
 
-func help() string {
+func help() {
 	s1 := fmt.Sprintf("\t\t%s Version %s\nUse: %s [OPTIONS] ...", PkgName, Version, os.Args[0])
 	s2 := `    --help                                          This message
     --version                                       Print Version
@@ -96,15 +118,15 @@ func help() string {
     --updateSourceList | --upsl                     Update Ads Hostname List
 Note : You can write options in any case.
 `
-	return fmt.Sprintf("%s\n%s\n", s1, s2)
+	fmt.Printf("%s\n%s\n", s1, s2)
 }
 
-func block() int {
+func block() {
 	for _, i := range GetList(sourcePath) {
 		c, err := GetContent(i)
 		if err != nil {
 			fmt.Println(err)
-			return 1
+			return
 		}
 		for _, j := range FilterHosts(c) {
 			blockList.Add(j)
@@ -120,20 +142,17 @@ func block() int {
 	WriteHosts(hostPath, blockList)
 	fmt.Println("------------------Success------------------")
 	fmt.Println("You may reboot your system to apply changes.")
-	return 0
 }
 
-func unblock() int {
+func unblock() {
 	fmt.Println("------------------Please wait------------------")
 	WriteHosts(hostPath, NewSet())
 	fmt.Println("------------------Success------------------")
-	return 0
 }
 
-func addAllowList() int {
+func addAllowList() {
 	fmt.Println("------------------Please wait------------------")
-	s := addAllowListReg.FindStringSubmatch(args)[1]
-	t := regexp.MustCompile(`\s+`).Split(s, -1)
+	t := Z.Args()
 	al := NewSet()
 	bll := NewSet()
 	bl := ReadLocalHosts(hostPath)
@@ -170,13 +189,11 @@ func addAllowList() int {
 	}
 	WriteHosts(hostPath, blockList)
 	fmt.Println("------------------Success------------------")
-	return 0
 }
 
-func addBlockList() int {
+func addBlockList() {
 	fmt.Println("------------------Please wait------------------")
-	s := addBlockListReg.FindStringSubmatch(args)[1]
-	t := regexp.MustCompile(`\s+`).Split(s, -1)
+	t := Z.Args()
 	bl := ReadLocalHosts(hostPath)
 	al := NewSet()
 	bll := NewSet()
@@ -213,7 +230,6 @@ func addBlockList() int {
 	}
 	WriteHosts(hostPath, bll)
 	fmt.Println("------------------Success------------------")
-	return 0
 }
 
 func creteEmptyFile(f string) {

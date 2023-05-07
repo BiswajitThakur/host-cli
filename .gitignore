@@ -17,3 +17,4 @@ allow.txt
 block.txt
 sources.txt
 host-cli*
+hosts
