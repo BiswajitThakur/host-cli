@@ -48,14 +48,15 @@ function build_deb {
     if [ ! -d ./$PKG_NAME/usr/share/$PKG_NAME ]; then
         mkdir -p ./$PKG_NAME/usr/share/$PKG_NAME
     fi
-    local allowPath="./$PKG_NAME/usr/share/$PKG_NAME/allow.txt"
-    local blockPath="./$PKG_NAME/usr/share/$PKG_NAME/block.txt"
-    local sourcePath="./$PKG_NAME/usr/share/$PKG_NAME/sources.txt"
-    touch $allowPath
-    touch $blockPath
-    echo "https://adaway.org/hosts.txt" > $sourcePath
-    echo "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext" >> $sourcePath
-    echo "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts" >> $sourcePath
+    # local allowPath="./$PKG_NAME/usr/share/$PKG_NAME/allow.txt"
+    # local blockPath="./$PKG_NAME/usr/share/$PKG_NAME/block.txt"
+    # local sourcePath="./$PKG_NAME/usr/share/$PKG_NAME/sources.txt"
+    # touch $allowPath
+    # touch $blockPath
+    # touch ./$PKG_NAME/usr/share/$PKG_NAME/redirect.txt
+    # echo "https://adaway.org/hosts.txt" > $sourcePath
+    # echo "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext" >> $sourcePath
+    # echo "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts" >> $sourcePath
     deb_preinst
     if [ -f /usr/bin/go ] || [ -f /bin/go ] || [ -f /usr/local/bin/go ]; then
         GOOS=$OS GOARCH=$ARCH go build -ldflags="-s -w" -o ./$PKG_NAME/usr/bin/$PKG_NAME

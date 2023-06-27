@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/src/redirect.style.css" />
+</head>
+
+<body>
+    <form class="root" action="/add_redirect_list" method="post" id="myForm">
+        <h2 class="h_1">Add To Redirect List</h2>
+        <div class="aa1" id="arrs">
+            <input class="inp_main" placeholder="Enter Host Name" type="text" name="array[]" value="" id=""
+                required="required" />
+            <input class="inp_main" placeholder="Enter Host Name" type="text" name="array[]" value="" id=""
+                required="required" />
+        </div>
+        <input type="button" id="addMore" value="Add More"><br />
+        <input type="submit" value="submit" class="submit1">
+        <div id="result"></div>
+    </form>
+    <a href="/">Home</a>
+    <script src="/src/redirect.js"></script>
+</body>
+
+</html>

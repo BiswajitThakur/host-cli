@@ -1,0 +1,66 @@
+body {
+    color: #ffffff;
+    background-color: #252525;
+}
+.root {
+    display: grid;
+    margin: 10px;
+    width: 600px;
+    grid-gap: 5px;
+    grid-template-areas: 'h h h h h'
+        'i i i i i'
+        '. . m m .'
+        '. s s . .'
+        '. r r r .';
+}
+
+.hh1 {
+    grid-area: h;
+}
+
+#arrs {
+    grid-area: i;
+    width: 200px;
+}
+
+#addMore {
+    grid-area: m;
+}
+
+.submit1 {
+    grid-area: s;
+}
+
+#result {
+    grid-area: r;
+}
+
+input {
+    padding: 5px;
+    background-color: #151515;
+    color: #ffffff;
+}
+
+input[type="button"], input[type="submit"] {
+    background-color: rgb(34, 32, 32);
+    color: aquamarine;
+}
+ /* unvisited link */
+a:link {
+color: red;
+}
+
+/* visited link */
+a:visited {
+color: rgb(135, 211, 36);
+}
+
+/* mouse over link */
+a:hover {
+color: hotpink;
+}
+
+/* selected link */
+a:active {
+color: blue;
+} 

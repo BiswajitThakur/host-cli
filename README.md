@@ -1,16 +1,25 @@
 
+
 # Host-CLI
 Host-CLI is a Ads blocker and websites blocker CLI based tool written in golang.
 
 ## Installation ( Debian/Ubuntu )
 
-* Download the Debian package & Execute the following command
+* [Download](https://github.com/BiswajitThakur/host-cli/releases) the Debian package & Execute the following command
 ```bash
 sudo dpkg -i host-cli_*.deb
 sudo host-cli --version
 ```
+## Installation ( Linux )
+```bash
+sudo apt install golang
+git clone https://github.com/BiswajitThakur/host-cli
+cd host-cli/
+go build .
+sudo ./host-cli --version
+```
 ## Installation ( Windows )
-* Download the exe file.
+* [Download](https://github.com/BiswajitThakur/host-cli/releases) the exe file.
 * Open terminal as administrator.
 * Go to the location where you downloaded the exe file.
 * Execute the following command.
@@ -57,3 +66,7 @@ For Example : `sudo host-cli --unblock google.com facebook.com`
 
 ### - Update hosts sources -
 `sudo host-cli --updateSourceList` or `sudo host-cli --upsl`
+
+### - Create http server for using GUI mode on browser
+`sodo host-cli --http 3999` or `sodo host-cli --http 127.0.0.1:3999`
+* Now open [http://127.0.0.1:3999](http://127.0.0.1:3999)

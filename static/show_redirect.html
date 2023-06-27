@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            background-color: #252525;
+            color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .h_1 {
+            font-weight: bold;
+            font-size: 25px;
+            text-align: center;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 1px blue, -1px 1px 1px blue, 1px -1px 1px blue, -1px -1px 1px blue;
+        }
+
+        .inp_main {
+            width: 97%;
+            margin-bottom: 10px;
+            margin-left: 15px;
+            margin-right: auto;
+            padding: 7px;
+            font-weight: bold;
+            text-align: left;
+            color: #ffffff;
+            border: 1px solid gray;
+            background-color: #191919;
+            /* position:fixed;*/
+        }
+
+        .inp_main:focus {
+            border: 0;
+            /* border-radius: 5px; */
+        }
+
+        .aa1 {
+            width: 98vw;
+            display: inline-grid;
+            grid-template-columns: 50% auto;
+            margin: 5px;
+            padding: 10px;
+
+        }
+
+        .bb1 {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: clip;
+            padding: 2px;
+            margin: 2px;
+            background-color: #151515;
+        }
+
+        .main_2 {
+            display: inline-grid;
+            grid-template-columns: 90vw 10vw;
+        }
+
+        .r0 {
+            color: rgb(171, 189, 9);
+        }
+
+        .r1 {
+            color: rgb(209, 32, 100);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main">
+        <div>
+            <div class="h_1">List of Hosts of Blocked Ads & Web</div>
+        </div>
+        <div class="main_2">
+            <input class="inp_main" id="searchInput" type="text" />
+            <button id="searchBtn">search</button>
+        </div>
+        <h4 id="ld">Loading....</h4>
+        <div class="aa1" id="aa1">
+
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            let val = document.getElementById('searchInput').value.replace(/[\\\/\|\+\.\-]/gi, (e) => {
+                return '\\' + e;
+            });
+            let v = document.querySelectorAll('.aa1 > .bb1');
+            for (let i = 0; i < v.length; i = i + 2) {
+                let inpReg = new RegExp(val, 'gi');
+                if (inpReg.test(v[i].textContent) || inpReg.test(v[i + 1].textContent)) {
+                    v[i].style.display = 'block';
+                    v[i + 1].style.display = 'block';
+                } else {
+                    v[i].style.display = 'none';
+                    v[i + 1].style.display = 'none';
+                };
+            };
+        });
+        let aa1 = document.getElementById('aa1');
+        const ld = document.getElementById('ld');
+        fetch('/show_redirect_list').then(res => res.json()).then(data => {
+            for (let i = 0; i < data.length; i++) {
+                let elm1 = document.createElement('div');
+                elm1.setAttribute('class', 'bb1 r0');
+                elm1.textContent = data[i][0];
+                aa1.appendChild(elm1);
+                let elm2 = document.createElement('div');
+                elm2.setAttribute('class', 'bb1 r1');
+                elm2.textContent = data[i][1];
+                aa1.appendChild(elm2);
+            };
+            ld.style.display = 'none';
+        }).catch(err => {
+            ld.innerHTML = err;
+            console.error(err);
+        });
+    </script>
+</body>
+
+</html>

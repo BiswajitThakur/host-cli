@@ -1,0 +1,81 @@
+body {
+    background-color: #252525;
+    color: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.h_1 {
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 1px blue, -1px 1px 1px blue, 1px -1px 1px blue, -1px -1px 1px blue;
+}
+
+.inp_main {
+    width: 97%;
+    margin-bottom: 10px;
+    margin-left: 15px;
+    margin-right: auto;
+    padding: 7px;
+    font-weight: bold;
+    text-align: left;
+    color: #ffffff;
+    border: 1px solid gray;
+    background-color: #191919;
+    /* position:fixed;*/
+}
+
+.inp_main:focus {
+    border: 0;
+    /* border-radius: 5px; */
+}
+
+.aa1 {
+    width: 98vw;
+    display: inline-grid;
+    grid-template-columns: 100%;
+    margin: 5px;
+    padding: 10px;
+
+}
+
+.bb1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    padding: 2px;
+    margin: 2px;
+    background-color: #151515;
+}
+
+.main_2 {
+    display: inline-grid;
+    grid-template-columns: 90vw 10vw;
+}
+
+/* unvisited link */
+a:link {
+    color: red;
+}
+
+/* visited link */
+a:visited {
+    color: rgb(135, 211, 36);
+}
+
+/* mouse over link */
+a:hover {
+    color: hotpink;
+}
+
+/* selected link */
+a:active {
+    color: rgb(216, 216, 230);
+}

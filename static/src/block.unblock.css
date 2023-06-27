@@ -1,0 +1,29 @@
+body {
+    background-color: #252525;
+    color: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.h_1 {
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    text-shadow: 1px 1px 1px blue, -1px 1px 1px blue, 1px -1px 1px blue, -1px -1px 1px blue;
+}
+
+button {
+    margin: 5px;
+    padding: 5px;
+    border-radius: 3px;
+    background-color: #091f66;
+    color: rgb(232, 224, 236);
+    box-shadow:1px 1px 1px rgb(56, 109, 6);
+    border: #4d0303;
+}

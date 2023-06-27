@@ -11,23 +11,27 @@ import (
 	"strings"
 )
 
-var Version string = "1.0.5"
+var Version string = "1.1.0"
 var PkgName string = "host-cli"
-var homeDir, _ = os.UserHomeDir()
+var HomeDir, _ = os.UserHomeDir()
 
-var hostPath string = HostPath()
+var HostPath string = HostPath1()
 
-// var hostPath string = "hosts"
+// var HostPath string = "hosts"
+// var BlockPath string = "block.txt"
+// var AllowPath string = "allow.txt"
+// var SourcePath string = "sources.txt"
+// var RedirectPath string = "redirect.txt"
 
-var blockPath string = getPathIfExist("block.txt", []string{
+var BlockPath string = getPathIfExist("block.txt", []string{
 	fmt.Sprintf("/usr/share/%s/block.txt", PkgName),
 	fmt.Sprintf("/data/data/com.termux/files/usr/share/%s/block.txt", PkgName),
 })
-var allowPath string = getPathIfExist("allow.txt", []string{
+var AllowPath string = getPathIfExist("allow.txt", []string{
 	fmt.Sprintf("/usr/share/%s/allow.txt", PkgName),
 	fmt.Sprintf("/data/data/com.termux/files/usr/share/%s/allow.txt", PkgName),
 })
-var sourcePath string = getSourcePathIfExist("sources.txt", []string{
+var SourcePath string = getSourcePathIfExist("sources.txt", []string{
 	"https://adaway.org/hosts.txt",
 	"https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=0&mimetype=plaintext",
 	"https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
@@ -36,9 +40,15 @@ var sourcePath string = getSourcePathIfExist("sources.txt", []string{
 	fmt.Sprintf("/data/data/com.termux/files/usr/share/%s/sources.txt", PkgName),
 })
 
+var RedirectPath string = getPathIfExist("redirect.txt", []string{
+	fmt.Sprintf("/usr/share/%s/redirect.txt", PkgName),
+	fmt.Sprintf("/data/data/com.termux/files/usr/share/%s/redirect.txt", PkgName),
+})
+
 var blockList *Set = NewSet()
 var args string = strings.Join(os.Args[1:], " ")
-
+var waitStr string = "------------- Please Wait ------------"
+var succStr string = "------------- Success ------------"
 var validHost = regexp.MustCompile(`(?i)^[^\.][a-z\d\-]+\.[a-z\d\-\.]+[^\.]$`)
 
 var Z = options.NewOptions(os.Args)
@@ -48,7 +58,7 @@ func main() {
 	Z.Add(options.Option{
 		SortName: "-h",
 		LongName: "--help",
-		Callback: help,
+		Callback: Help,
 	})
 
 	Z.Add(options.Option{
@@ -61,36 +71,75 @@ func main() {
 		SortName: "-b",
 		LongName: "--block",
 		Callback: func() {
+			fmt.Println(waitStr)
+			v := NewSet()
 			if len(Z.Args()) == 0 {
-				block()
+				errs := OptionBlock(v, true)
+				if len(errs) == 0 {
+					fmt.Println(succStr)
+					return
+				} else {
+					for _, i := range errs {
+						fmt.Println(i)
+					}
+					return
+				}
+			}
+			for _, i := range Z.Args() {
+				v.Add(i)
+			}
+			errs := OptionBlock(v, false)
+			if len(errs) == 0 {
+				fmt.Println(succStr)
 				return
 			}
-			addBlockList()
+			for _, i := range errs {
+				fmt.Println(i)
+			}
 		},
 	})
 
 	Z.Add(options.Option{
 		SortName: "-upsl",
 		LongName: "--updatesourcelist",
-		Callback: block,
+		Callback: func() {
+			errs := OptionBlock(NewSet(), true)
+			for _, i := range errs {
+				fmt.Println(i)
+			}
+		},
 	})
 
 	Z.Add(options.Option{
-		SortName: "-u",
+		SortName: "-ub",
 		LongName: "--unblock",
 		Callback: func() {
-			if len(Z.Args()) == 0 {
-				unblock()
+			fmt.Println(waitStr)
+			v := NewSet()
+			for _, i := range Z.Args() {
+				v.Add(i)
+			}
+			errs := OptionAllowFn(v)
+			if len(errs) == 0 {
+				fmt.Println(succStr)
 				return
 			}
-			addAllowList()
+			for _, i := range errs {
+				fmt.Println(i)
+			}
 		},
+	})
+
+	Z.Add(options.Option{
+		SortName: "-http",
+		LongName: "--http",
+		Callback: func() { Server(Z.Args()[0]) },
 	})
 
 	Z.Start()
 }
 
-func HostPath() string {
+func HostPath1() string {
 	win := `c:\Windows\System32\Drivers\etc\hosts`
 	linux := "/etc/hosts"
 	mac := "/private/etc/hosts"
@@ -107,7 +156,7 @@ func HostPath() string {
 	}
 }
 
-func help() {
+func Help() {
 	s1 := fmt.Sprintf("\t\t%s Version %s\nUse: %s [OPTIONS] ...", PkgName, Version, os.Args[0])
 	s2 := `    --help                                          This message
     --version                                       Print Version
@@ -116,120 +165,10 @@ func help() {
     --unblock                                       Unblock ads and all host blocked by you
     --unblock                                       Unblock host_name1 host_name2  ...
     --updateSourceList | --upsl                     Update Ads Hostname List
+	--http 3999 or --http 127.0.0.1:3999            http server start at port 3999
 Note : You can write options in any case.
 `
 	fmt.Printf("%s\n%s\n", s1, s2)
-}
-
-func block() {
-	for _, i := range GetList(sourcePath) {
-		c, err := GetContent(i)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		for _, j := range FilterHosts(c) {
-			blockList.Add(j)
-		}
-	}
-	fmt.Println("------------------Please wait------------------")
-	for _, i := range GetList(blockPath) {
-		blockList.Add(i)
-	}
-	for _, i := range GetList(allowPath) {
-		blockList.Remove(i)
-	}
-	WriteHosts(hostPath, blockList)
-	fmt.Println("------------------Success------------------")
-	fmt.Println("You may reboot your system to apply changes.")
-}
-
-func unblock() {
-	fmt.Println("------------------Please wait------------------")
-	WriteHosts(hostPath, NewSet())
-	fmt.Println("------------------Success------------------")
-}
-
-func addAllowList() {
-	fmt.Println("------------------Please wait------------------")
-	t := Z.Args()
-	al := NewSet()
-	bll := NewSet()
-	bl := ReadLocalHosts(hostPath)
-	for _, i := range GetList(blockPath) {
-		if validHost.MatchString(i) {
-			bll.Add(i)
-		} else {
-			fmt.Printf("Invalid Hostname : %s\n", i)
-		}
-	}
-	for _, i := range t {
-		if validHost.MatchString(i) {
-			al.Add(i)
-			bll.Remove(i)
-		} else {
-			fmt.Printf("Invalid Hostname : %s\n", i)
-		}
-	}
-	for _, i := range GetList(allowPath) {
-		if validHost.MatchString(i) {
-			al.Add(i)
-			bll.Remove(i)
-		} else {
-			fmt.Printf("Invalid Hostname : %s\n", i)
-		}
-	}
-	WriteList(allowPath, al)
-	WriteList(blockPath, bll)
-	for _, i := range bl {
-		blockList.Add(i)
-	}
-	for _, i := range al.GetAll() {
-		blockList.Remove(i)
-	}
-	WriteHosts(hostPath, blockList)
-	fmt.Println("------------------Success------------------")
-}
-
-func addBlockList() {
-	fmt.Println("------------------Please wait------------------")
-	t := Z.Args()
-	bl := ReadLocalHosts(hostPath)
-	al := NewSet()
-	bll := NewSet()
-	for _, i := range GetList(allowPath) {
-		if validHost.MatchString(i) {
-			al.Add(i)
-		} else {
-			fmt.Printf("Invalid Hostname : %s\n", i)
-		}
-	}
-	for _, i := range GetList(blockPath) {
-		if validHost.MatchString(i) {
-			bll.Add(i)
-			al.Remove(i)
-		} else {
-			fmt.Printf("Invalid Hostname : %s\n", i)
-		}
-	}
-	for _, i := range t {
-		if validHost.MatchString(i) {
-			bll.Add(i)
-			al.Remove(i)
-		} else {
-			fmt.Printf("Invalid Hostname : %s\n", i)
-		}
-	}
-	WriteList(allowPath, al)
-	WriteList(blockPath, bll)
-	for _, i := range bl {
-		bll.Add(i)
-	}
-	for _, i := range al.GetAll() {
-		bll.Remove(i)
-	}
-	WriteHosts(hostPath, bll)
-	fmt.Println("------------------Success------------------")
 }
 
 func creteEmptyFile(f string) {
@@ -246,7 +185,7 @@ func getPathIfExist(p string, paths []string) string {
 			return i
 		}
 	}
-	pth := filepath.Join(homeDir, PkgName)
+	pth := filepath.Join(HomeDir, PkgName)
 	g := filepath.Join(pth, p)
 	if IsExist(g) {
 		return g
@@ -268,7 +207,7 @@ func getSourcePathIfExist(p string, urls []string, paths []string) string {
 			return i
 		}
 	}
-	pth := filepath.Join(homeDir, PkgName)
+	pth := filepath.Join(HomeDir, PkgName)
 	g := filepath.Join(pth, p)
 	if IsExist(g) {
 		return g
