@@ -85,9 +85,12 @@ func FindStr(s []string, v string) int {
 func FilterHosts(s string) []string {
 	var v []string = []string{}
 	r := regexp.MustCompile(`^\s*\d\d?\d?\.\d\d?\d?\.\d\d?\d?\.\d\d?\d?\s+([A-Za-z0-9-\.]+)\s*`)
+	rr := regexp.MustCompile(`(?i)^\s*localhost\s+([A-Za-z0-9-\.]+)\s*`)
 	for _, i := range strings.Split(s, "\n") {
 		if !IsComment(i) && r.MatchString(i) {
 			v = append(v, r.FindStringSubmatch(i)[1])
+		} else if !IsComment(i) && rr.MatchString(i) {
+			v = append(v, rr.FindStringSubmatch(i)[1])
 		}
 	}
 	return v
