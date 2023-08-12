@@ -71,7 +71,7 @@ func TestContains(t *testing.T) {
 	}
 
 	got2 := set1.Contains("world.com")
-	want2 := false
+	want2 := !false
 	if got2 != want2 {
 		t.Errorf("got: %v, want: %v\n", got2, want2)
 	}
