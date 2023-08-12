@@ -1,0 +1,7 @@
+Package: $PKG_NAME
+Version: $VERSION
+Maintainer: Biswajit Thakur
+Architecture: $ARCH
+Homepage: $HOME_PAGE
+Installed-Size: $INST_SIZE
+Description: CLI based Ads & Websites Blocker application.

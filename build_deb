@@ -1,0 +1,69 @@
+#!/bin/env python3
+
+import os
+import re
+
+if os.path.exists('tmp'):
+    os.system(f'rm -rf tmp')
+
+def getSize(p: str) -> int:
+    size = 0
+    for ele in os.scandir(p):
+        size += os.path.getsize(ele)
+    return size
+
+def getEnv(p: str) -> dict:
+    f = open(p, 'r')
+    d = {}
+    for i in f.readlines():
+        t = [ j.strip() for j in i.split('=') ]
+        d.update({t[0] : t[1]})
+    f.close()
+    return d
+
+def setFileValue(p: str, val: dict) -> None:
+    f = open(p, 'r')
+    txt = f.read()
+    f.close()
+    for i in val.keys():
+        txt = re.sub(f'\\${i}', val.get(i), txt)
+    f = open(p, 'w')
+    f.write(txt)
+    f.close()
+
+envs = getEnv('config.env')
+
+dirs = [
+    'tmp',
+    f'tmp/{envs.get("PKG_NAME")}',
+    f'tmp/{envs.get("PKG_NAME")}/usr',
+    f'tmp/{envs.get("PKG_NAME")}/DEBIAN',
+    f'tmp/{envs.get("PKG_NAME")}/usr/bin',
+]
+
+for i in dirs:
+    os.mkdir(i)
+
+srcs = [
+    ['deb/DEBIAN/*', f'tmp/{envs.get("PKG_NAME")}/DEBIAN/'],
+]
+
+for i in srcs:
+    os.system(f'cp {i[0]} {i[1]}')
+
+os.system(f'GOOS={envs.get("OS")} GOARCH={envs.get("ARCH")} go build -ldflags="-s -w" -o tmp/{envs.get("PKG_NAME")}/usr/bin/{envs.get("PKG_NAME")}')
+os.chdir('tmp')
+envs.update({'INST_SIZE': f'{getSize(envs.get("PKG_NAME"))}'})
+
+replace_files = [
+    f'{envs.get("PKG_NAME")}/DEBIAN/control',
+    f'{envs.get("PKG_NAME")}/DEBIAN/preinst',
+]
+
+for i in replace_files:
+    setFileValue(i, envs)
+
+os.system(f'dpkg-deb --build {envs.get("PKG_NAME")}/')
+os.rename(f'{envs.get("PKG_NAME")}.deb', f'./../{envs.get("PKG_NAME")}_{envs.get("VERSION")}_{envs.get("ARCH")}.deb')
+os.chdir('../')
+os.system(f'rm -rf tmp')

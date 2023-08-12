@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -L /usr/bin/host-cli ] || [ -f /usr/bin/host-cli ]; then
+    sudo rm /usr/bin/$PKG_NAME
+    echo "Removed old /usr/bin/$PKG_NAME"
+fi
+
+if [ -d /usr/share/$PKG_NAME ]; then
+    sudo rm -rf /usr/share/$PKG_NAME
+    echo "Removed old /usr/share/$PKG_NAME"
+fi
+
+if [ -d /lib/$PKG_NAME ]; then
+    sudo rm -rf /lib/$PKG_NAME
+    echo "Removed old /lib/$PKG_NAME"
+fi
+
+if [ -d /opt/host-cli ]; then
+    sudo rm -rf /opt/$PKG_NAME
+    echo "Removed old /opt/$PKG_NAME"
+fi
