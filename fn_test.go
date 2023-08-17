@@ -261,3 +261,19 @@ rudra.ghos.com   73.100.78.99
 	}
 	_ = os.Remove(test_file)
 }
+
+func TestBuildBlockList(t *testing.T) {
+	lst := NewSet()
+	lst.Add("aa.com")
+	lst.Add("bb.in")
+	lst.AddRedirect("zzzz.com", "yyy.in")
+	lst.AddRedirect("ppp.com", "uuuuu.com")
+	var got string = BuildBlockList(lst)
+	var want string = `# BT-start #
+0.0.0.0 aa.com
+0.0.0.0 bb.in
+# BT-end #`
+	if got != want {
+		t.Errorf("got: %v, want: %v\n", got, want)
+	}
+}
