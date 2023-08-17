@@ -277,3 +277,19 @@ func TestBuildBlockList(t *testing.T) {
 		t.Errorf("got: %v, want: %v\n", got, want)
 	}
 }
+
+func TestBuildRedirectList(t *testing.T) {
+	lst := NewSet()
+	lst.Add("aa.com")
+	lst.Add("bb.in")
+	lst.AddRedirect("zzzz.com", "yyy.in")
+	lst.AddRedirect("ppp.com", "uuuuu.com")
+	var got string = BuildRedirectList(lst)
+	var want string = `# BT-redirect-start #
+ppp.com uuuuu.com
+zzzz.com yyy.in
+# BT-redirect-end #`
+	if got != want {
+		t.Errorf("got: %v, want: %v\n", got, want)
+	}
+}
