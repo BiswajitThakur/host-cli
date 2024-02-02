@@ -1,6 +1,8 @@
 
-
 # Host-CLI
+
+**⚠️ This application is no longer maintained. See https://github.com/BiswajitThakur/host-rs for an actively maintained fork. ⚠️**
+
 Host-CLI is a Ads blocker and websites blocker CLI based tool written in golang.
 
 ## Installation ( Debian/Ubuntu )
